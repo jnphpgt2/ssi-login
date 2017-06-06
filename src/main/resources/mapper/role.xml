@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- sqlMap：映射标签
+	namespace：命名空间
+ -->
+<sqlMap namespace="role">
+
+	<!-- 为类起别名，使用的时候比较方便 -->
+	<typeAlias alias="role" type="com.jk.entity.role.Role"/>
+	
+	<!-- 查询用户表总条数 -->
+	<select id="selectRoleCount" parameterClass="role" resultClass="java.lang.Integer">
+		select 
+	      count(t_id)
+	    from t_roles
+	</select>
+	
+	<!-- 查询用户列表 -->
+	<select id="selectRoleJsonList" parameterClass="role" resultClass="role">
+		select * from (
+			select u1.*, rownum as rn from (
+				select 
+			      t_id as roleID, 
+			      t_name as roleName,
+			      t_desc as roleDesc
+			    from t_roles
+			) u1
+			where rownum <![CDATA[<=]]> #endPos#
+		) u2
+		where u2.rn >= #startPos#
+	</select>
+	
+	<!-- 
+		##:管理员-》'管理员'
+		$$:管理员-》管理员 
+	-->
+	
+	<!-- 添加角色信息 -->
+	<insert id="insertRole" parameterClass="role">
+		insert into t_roles
+		(t_id, t_name, t_desc)
+		values
+		(t_roles_seq.nextval, #roleName#, #roleDesc#)
+	</insert>
+	
+	<!-- 根据ID查询角色信息 -->
+	<select id="selectRoleInfoByRoleID" parameterClass="role" resultClass="role">
+		select 
+	      t_id as roleID, 
+	      t_name as roleName,
+	      t_desc as roleDesc
+	    from t_roles
+	    where t_id = #roleID#
+	</select>
+	
+	<!-- 修改角色信息 -->
+	<update id="updateRoleByRoleID" parameterClass="role">
+		update t_roles set
+			t_name = #roleName#,
+	      	t_desc = #roleDesc# 
+	    where t_id = #roleID#
+	</update>
+	
+	<!-- 查询本角色所有的权限 -->
+	<select id="selectRoleMenuTree" parameterClass="int" resultClass="java.util.HashMap">
+		select t_menu_id as "menuID"
+		from t_r_m_mid 
+		where t_role_id = #dsfdgsr#
+	</select>
+	
+	<!-- 删除角色信息 -->
+	<delete id="deleteRoleByRoleID" parameterClass="role">
+		delete from t_roles
+		where t_id = #roleID#
+	</delete>
+	
+	<!-- 删除角色权限信息 -->
+	<delete id="deleteRoleMenuByRoleID" parameterClass="role">
+		delete from t_r_m_mid
+		where t_role_id = #roleID#
+	</delete>
+	
+	<!-- 删除用户角色信息 -->
+	<delete id="deleteUserRoleByRoleID" parameterClass="role">
+		delete from t_u_r_mid
+		where t_role_id = #roleID#
+	</delete>
+	
+</sqlMap>

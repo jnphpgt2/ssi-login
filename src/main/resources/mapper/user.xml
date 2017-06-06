@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- sqlMap：映射标签
+	namespace：命名空间
+ -->
+<sqlMap namespace="user">
+
+	<!-- 为类起别名，使用的时候比较方便 -->
+	<typeAlias alias="user" type="com.jk.entity.user.User"/>
+
+	<!-- 用户登陆：查询单条 -->
+	<select id="login" parameterClass="user" resultClass="user">
+		select 
+			t_id as userID, 
+			t_account as userAccount, 
+			t_pwd as userPwd,
+			t_fail_login_count as userFailedCount,
+			t_update_date as userUpdateDate
+		from t_users
+		where t_account = #userAccount#
+	</select>
+	
+	<!-- 修改用户登录失败次数 -->
+	<update id="updateLoginFailedCount" parameterClass="user">
+		update t_users 
+		set t_fail_login_count = #userFailedCount#,
+			t_update_date = sysdate
+		where t_id = #userID#
+	</update>
+	
+	<!-- 查询用户列表 -->
+	<select id="selectUserJsonList" parameterClass="user" resultClass="user">
+		select * from (
+			select u1.*, rownum as rn from (
+				select 
+			      t_id as userID, 
+			      t_account as userAccount, 
+			      t_name as userName,
+			      t_sex as userSex,
+			      t_age as userAge,
+			      to_char(t_bir, 'yyyy-MM-dd') as userBirStr
+			    from t_users
+			) u1
+			where rownum <![CDATA[<=]]> #endPos#
+		) u2
+		where u2.rn >= #startPos#
+	</select>
+	
+	<!-- 查询用户表总条数 -->
+	<select id="selectUserCount" parameterClass="user" resultClass="int">
+		select 
+	      count(t_id)
+	    from t_users
+	</select>
+	
+	<insert id="insertUser" parameterClass="user">
+		insert into t_users
+			(t_id, 
+			t_account, 
+			t_pwd, 
+			t_name, 
+			<isGreaterThan property="userSex" compareValue="0">
+			t_sex, 
+			</isGreaterThan>
+			t_age, 
+			t_bir)
+		values
+			(t_users_seq.nextval,
+			#userAccount#,
+			#userPwd#,
+			#userName#,
+			<isGreaterThan property="userSex" compareValue="0">
+			#userSex#, 
+			</isGreaterThan>
+			#userAge#,
+			to_date(#userBirStr#, 'yyyy-MM-dd'))
+	</insert>
+	
+	<!-- 根据ID查询用户信息 -->
+	<select id="selectUserByUserID" parameterClass="user" resultClass="user">
+		select 
+	      t_id as userID, 
+	      t_account as userAccount, 
+	      t_name as userName,
+	      t_sex as userSex,
+	      t_age as userAge,
+	      to_char(t_bir, 'yyyy-MM-dd') as userBirStr
+	    from t_users
+	    where t_id = #userID#
+	</select>
+	
+	<!-- 根据ID修改用户信息 -->
+	<update id="updateUserByUserID" parameterClass="user">
+		update t_users set 
+			t_name = #userName#,
+			t_sex = #userSex#,
+			t_age = #userAge#,
+			t_bir = to_date(#userBirStr#, 'yyyy-MM-dd')
+		where t_id = #userID#
+	</update>
+	
+	<!-- 查询用户的角色列表 -->
+	<select id="selectUserRoleTree" parameterClass="user" resultClass="java.util.HashMap">
+		select 
+			role1.t_id as "id", 
+			role1.t_name as "text", 
+			decode(role2.t_user_id,null,0,role2.t_user_id) as "userID",
+			0 as "checked"
+		from t_roles role1
+		left join (select t_role_id, t_user_id from t_u_r_mid
+					where t_user_id = #userID#) role2
+		on role1.t_id = role2.t_role_id
+	</select>
+	
+	<!-- 根据用户ID删除用户所有的角色 -->
+	<delete id="deleteAllRoleByUserID" parameterClass="int">
+		delete from t_u_r_mid
+		where t_user_id = #gdfgsdfhsd#
+	</delete>
+	
+	<!-- 批量添加用户的角色 -->
+	<insert id="batchInsertRoleToUser" parameterClass="java.util.Map">
+		insert into t_u_r_mid
+		(t_id, t_user_id, t_role_id)
+		values
+		(t_u_r_mid_seq.nextval, #userID#, #roleID#)
+	</insert>
+	
+	<!-- 查询主页面左侧菜单树 -->
+	<select id="selectMainTreeList" parameterClass="int" resultClass="java.util.HashMap">
+		select t_id as "id",
+	           t_name as "text",
+	           t_url as "url",
+	           t_pid as "pid",
+	           t_leaf as "leaf",
+	           t_button as "button",
+	           decode(t_leaf, 0, 'closed', null) as "state"
+	    from T_MENUS
+	    where t_pid = #zxgxdfbdg#
+	    and t_button = 0
+	</select>
+	
+	<!-- 根据用户ID查询出该用户的完整权限树 -->
+	<select id="selectUserAllTreeList" parameterClass="user" resultClass="string">
+		select m3.t_url as "url"
+	    from t_menus m3
+	    right join (select distinct m1.t_menu_id 
+				    from t_r_m_mid m1
+				    right join (select t_role_id 
+				    			from t_u_r_mid 
+				    			where t_user_id = #userID#) m2
+				    on m1.t_role_id = m2.t_role_id) m4
+	    on m3.t_id = m4.t_menu_id
+	    where m3.t_leaf = 1
+	</select>
+	
+</sqlMap>

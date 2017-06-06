@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>酷播迷你列表连播播放器演示</title>
+<meta name="keywords" content="酷播迷你列表连播,酷播迷你V3,免费网页视频播放器" />
+<meta name="description" content="酷播迷你V3新款列表连播,支持列表连播功能,免费下载,酷播迷你官方下载,免费flv播放器" />
+<link rel="stylesheet" type="text/css" href="Images/common.css">
+<SCRIPT LANGUAGE=JavaScript>
+<!--
+function getLight(pars)
+{	
+	//alert("播放器模式参数值："+string+"");
+	if(pars == "open")
+	{
+		close_light(this);
+	}
+	else
+	{
+		close_light(this);
+	}
+}
+
+//兼容性
+function thisMovie(movieName) {
+    if (navigator.appName.indexOf("Microsoft") != -1) {
+        return window[movieName]
+    }
+    else {
+        return document[movieName]
+    }
+}
+//-->
+</SCRIPT> 
+
+<style type="text/css">
+<!--
+.video { OVERFLOW: hidden; WIDTH: 100%; POSITION: relative}
+.close_light_bg {DISPLAY: none; BACKGROUND: #000; FILTER: alpha(opacity = 85); LEFT: 0px; WIDTH: 100%; POSITION: absolute; TOP: 0px; HEIGHT: 100%; opacity: .85}
+-->
+</style>
+</head>
+<body>
+<DIV class=close_light_bg id=close_light_bg></DIV>
+ 
+
+
+
+<!--myplayer/begin-->
+<div id="myplayer">
+  <!--酷播迷你 CuPlayerMiniV3.0 代码开始-->
+  <script type="text/javascript" src="Images/swfobject.js"></script>
+  <div class="video" id="CuPlayer"> <strong>酷播迷你(CuPlayerMiniV3.0) 提示：您的Flash Player版本过低，请<a href="http://www.CuPlayer.com/" >点此进行播放器升级</a>！</strong> </div>
+  <div class="list">
+    <ul class="mylist" style="height:150px;width:600px;overflow-x:hidden;overflow-y:auto" >
+      <li><a href="#" onclick="changeStream(0);">1 达利园青梅绿茶宣传广告</a></li>
+      <li><a href="#"  onclick="changeStream(1);">2 蒙牛特仑苏金牌牛奶宣传广告</a></li>
+	  <li><a href="#"  onclick="changeStream(2);">3 达利和其正宣传广告</a></li>
+	  <li><a href="#"  onclick="changeStream(3);">4 蒙牛特仑苏牛奶宣传广告</a></li>
+	  <li><a href="#"  onclick="changeStream(4);">5 蒙牛特仑苏原生有机奶宣传广告</a></li>
+    </ul>
+  </div>
+  
+<script type=text/javascript>
+<!--
+//酷播迷你：官方连播代码示例//
+var CuPlayerList ="http://www.dali-group.com/lvcha/flv.flv|http://www.telunsu.net/flash/flv/yyp.flv|http://www.dali-group.com/heqizheng/flv.flv|http://www.telunsu.net/flash/flv/video3.flv|http://www.telunsu.net/flash/flv/video2.flv"
+var sp =CuPlayerList.split("|")  
+var num = sp.length;
+var video_index = 0;
+function getNext(pars)
+{	
+  if(video_index < num-1)
+	{
+		video_index++;
+		so.addVariable("JcScpVideoPath",sp[video_index]);
+		so.write("CuPlayer");	
+	}
+	else
+	{
+	video_index = 0;
+	so.addVariable("JcScpVideoPath",sp[video_index]);
+	so.write("CuPlayer");	
+	}
+}
+function changeStream(CuPlayerFile){
+so.addVariable("JcScpVideoPath",sp[CuPlayerFile]);
+so.write("CuPlayer");	
+}
+
+CuPlayerFile =sp[video_index];
+var so = new SWFObject("player.swf","ply","600","410","9","#000000");
+so.addParam("allowfullscreen","true");
+so.addParam("allowscriptaccess","always");
+so.addParam("wmode","opaque");
+so.addParam("quality","high");
+so.addParam("salign","lt");
+//播放器设置文件-----------------------------
+so.addVariable("JcScpFile","CuSunV2set.xml");
+//视频文件及略缩图--------------------------
+so.addVariable("JcScpVideoPath",CuPlayerFile);
+so.addVariable("JcScpImg","Images/flashChangfa2.jpg"); 
+so.addVariable("JcScpSharetitle","标题信息"); 
+so.write("CuPlayer");
+
+//-->
+</script>
+  <!--酷播迷你 CuPlayerMiniV3.0 代码结束-->
+</div>
+<!--myplayer/end-->
+
+
+ 
+<SCRIPT language=javascript src="Images/jquery.js" type=text/javascript></SCRIPT> 
+<SCRIPT language=javascript src="Images/action.js" type=text/javascript></SCRIPT>
+<!--极酷播放器/代码结束-->
+
+
+
+
+<div id="title">
+<h2>列表自动连播[显示列表]</h2>
+</div>
+
+<!--footer/begin-->
+<div id="footer" class="en">
+<div class="copy"><p class="about">酷播 <strong><a href="http://www.CuPlayer.com" target="_blank">www.CuPlayer.com</a></strong> / 让传播更生动 2010-2012 (C) All Rights Reserved.</p>
+<p class="contact"> 客服QQ:<strong>176797520</strong></p> 
+</div>
+</div>
+<!--footer/end-->
+</body>
+</html>

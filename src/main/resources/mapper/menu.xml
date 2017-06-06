@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- sqlMap：映射标签
+	namespace：命名空间
+ -->
+<sqlMap namespace="menu">
+
+
+	<!-- 查询权限菜单树 -->
+	<select id="selectMenuListJson" parameterClass="int" resultClass="java.util.HashMap">
+		select t_id as "id",
+		       t_name as "text",
+		       t_url as "url",
+		       t_pid as "pid",
+		       t_leaf as "leaf",
+		       t_button as "button",
+		       decode(t_leaf, 0, 'closed', null) as "state"
+		from T_MENUS
+		where t_pid = #xfdrfgdfhd#
+	</select>
+	
+	<!-- 添加权限 -->
+	<insert id="insertMenu" parameterClass="java.util.Map">
+		<!-- 返回主键 -->
+		<selectKey keyProperty="menuID" resultClass="int">
+			select T_MENUS_SEQ.NEXTVAL as "menuID" from dual
+		</selectKey>
+		
+		insert into T_MENUS
+			(
+			t_id
+			,t_name
+			<isNotNull property="menuUrl">
+			,t_url
+			</isNotNull>
+			,t_pid
+			<isNotNull property="menuLeaf">
+			,t_leaf
+			</isNotNull>
+			<isNotNull property="menuButton">
+			,t_button
+			</isNotNull>
+			)
+		values
+			(
+			#menuID#
+			,#menuName#
+			<isNotNull property="menuUrl">
+			,#menuUrl#
+			</isNotNull>
+			,#menuPid#
+			<isNotNull property="menuLeaf">
+			,#menuLeaf#
+			</isNotNull>
+			<isNotNull property="menuButton">
+			,#menuButton#
+			</isNotNull>
+			)
+	</insert>
+	
+	<!-- 根据ID查询权限信息 -->
+	<select id="selectMenuInfoByMenuID" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+		select t_id as "id",
+		       t_name as "text",
+		       t_url as "url",
+		       t_pid as "pid",
+		       t_leaf as "leaf",
+		       t_button as "button",
+		       decode(t_leaf, 0, 'closed', null) as "state"
+		from T_MENUS
+		where t_id = #menuID#
+	</select>
+	
+</sqlMap>

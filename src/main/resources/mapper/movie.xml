@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- sqlMap：映射标签
+	namespace：命名空间
+ -->
+<sqlMap namespace="movie">
+
+	<!-- 为类起别名，使用的时候比较方便 -->
+	<typeAlias alias="movie" type="com.jk.entity.movie.Movie"/>
+	
+	<!-- 添加视频价格 -->
+	<insert id="insertMoviePrice" parameterClass="movie">
+		<selectKey keyProperty="priceID" resultClass="int">
+			select t_movie_prices_seq.nextval as "priceID" from dual
+		</selectKey>
+		insert into t_movie_prices
+			(t_id, t_price)
+		values
+			(#priceID#, #moviePrice#)
+	</insert>
+	
+	<insert id="insertMovie" parameterClass="movie">
+		insert into t_movies
+			(t_id, t_user_id, 
+			t_mtype_id, t_price_id, 
+			t_title, t_content,
+			t_file_id)
+		values
+			(t_movies_seq.nextval,
+			#userID#,
+			#movieTypeID#,
+			#priceID#,
+			#movieTitle#,
+			#movieContent#,
+			#fileID#)
+	</insert>
+	
+	<!-- 查询视频类别下拉框列表 -->
+	<select id="selectMovieTypeListJson" resultClass="movie">
+		select t_id as "movieTypeID", 
+			t_name as "movieTypeName"
+		from t_movie_types
+	</select>
+	
+	<!-- 查询视频总条数 -->
+	<select id="selectMovieJsonCount" parameterClass="movie" resultClass="int">
+		select count(t_id) 
+		from t_movies
+	</select>
+	
+	<!-- 查询视频列表：分页 -->
+	<select id="selectMovieJsonList" parameterClass="movie" resultClass="movie">
+		select * from (
+			select fy1.*, rownum as rn from (
+				select m1.t_id as "movieID", 
+		          m1.t_title as "movieTitle", 
+		          m1.t_content as "movieContent", 
+		          f1.t_size as "movieSize", 
+		          to_char(m1.t_create_date, 'yyyy-MM-dd') as "movieCreateDate",
+		            t1.t_name as "movieTypeName", 
+		            decode(p1.t_price, null, 0.00, p1.t_price) as "moviePrice", 
+		            u1.t_name as "userName"
+		        from t_movies m1
+		        left join t_movie_types t1
+		        on m1.t_mtype_id = t1.t_id
+		        left join t_movie_prices p1
+		        on m1.t_price_id = p1.t_id
+		        left join t_users u1
+		        on m1.t_user_id = u1.t_id
+		        left join t_files f1
+		        on m1.t_file_id = f1.t_id
+			) fy1
+			where rownum <![CDATA[<=]]> #endPos#
+		) fy2
+		where fy2.rn >= #startPos#
+	</select>
+	
+	<!-- 根据ID查询视频详细信息 -->
+	<select id="selectMovieInfoByID" parameterClass="int" resultClass="movie">
+		select m1.t_id as "movieID", 
+	      m1.t_title as "movieTitle", 
+	      m1.t_content as "movieContent", 
+	      f1.t_size as "movieSize", 
+	      to_char(m1.t_create_date, 'yyyy-MM-dd') as "movieCreateDate",
+	      f1.t_path as "moviePath",
+	        t1.t_name as "movieTypeName", 
+	        decode(p1.t_price, null, 0.00, p1.t_price) as "moviePrice", 
+	        u1.t_name as "userName"
+	    from t_movies m1
+	    left join t_movie_types t1
+	    on m1.t_mtype_id = t1.t_id
+	    left join t_movie_prices p1
+	    on m1.t_price_id = p1.t_id
+	    left join t_users u1
+	    on m1.t_user_id = u1.t_id
+	    left join t_files f1
+	    on m1.t_file_id = f1.t_id
+	    where m1.t_id = #fsdgdfhfsdhsdg#
+	</select>
+	
+	<!-- 根据md5序列查询文件是否存在 -->
+	<select id="selectFileByMD5" parameterClass="movie" resultClass="movie">
+		select t_id as "fileID", 
+			t_path as "moviePath", 
+			t_size as "movieSize", 
+			t_md5 as "fileMD5" 
+		from t_files where t_md5 = #fileMD5#
+	</select>
+	
+	<!-- 添加文件信息 -->
+	<insert id="insertFile" parameterClass="movie">
+		<selectKey keyProperty="fileID" resultClass="int">
+			select t_files_seq.nextval as "fileID" from dual
+		</selectKey>
+		insert into t_files
+			(t_id, t_path, t_size, t_suffix, t_md5)
+		values
+			(#fileID#, #moviePath#, #movieSize#, #movieSuffix#, #fileMD5#)
+	</insert>
+	
+	<!-- 根据ID集合查询视频集合 -->
+	<select id="selectMovieListByIDs" parameterClass="java.util.List" resultClass="movie">
+		select m1.t_id as "movieID", 
+	        m1.t_title || f1.t_suffix as "movieTitle",  
+	        f1.t_size as "movieSize", 
+	        f1.t_path as "moviePath"
+	      from t_movies m1
+	      left join t_files f1
+	      on m1.t_file_id = f1.t_id
+	      where m1.t_id in
+	      	<iterate open="(" close=")" conjunction=",">
+	      		#[]#
+	      	</iterate>
+	</select>
+	
+</sqlMap>
